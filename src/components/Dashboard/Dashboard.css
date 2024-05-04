@@ -1,0 +1,55 @@
+.contenedor{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    background-color: #023047;
+    overflow-y: auto;
+    transition: transform 0.5s ease; 
+}
+  
+.contenido {
+    flex: 0 0 80%;
+    background-color: #8ecae6;
+    flex-grow: 1;
+    overflow: auto;
+    padding: 0;
+}
+
+.sidebar.visible {
+    flex: 0 0 20%; 
+}
+
+.sidebar.hidden {
+    width: 0; 
+}
+
+.title{
+    font-family: "Courgette", cursive;
+    color: #ffffff;
+    margin-top: 16px;
+    padding-left: 40px;
+}
+
+.toggle{
+    position: absolute;
+    top: -10px;
+    background-color: #218abb00;
+    border: 0;
+    font-size: 50px;
+    padding: 0;
+    opacity: 0.4;
+}
+
+.toggle:hover{
+    opacity: 0.9;
+}
+
+.toggle.visible{
+    top: 10px;
+    left: 210px;
+    font-size: 25px;
+    color: white;
+}

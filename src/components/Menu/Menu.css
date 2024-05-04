@@ -1,0 +1,26 @@
+.nav-item{
+    flex: 0 0 100%;
+    list-style: none;
+}
+
+.link{
+    display: block;
+    font-family: "Lora", serif;
+    font-weight: bold;
+    padding: 10px 25px ;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .link:hover{
+    background-color: #29a7c0;
+    color:#000000;
+  }
+  
+  .link.active{
+    color:#000000;
+    background-color: #f1d471;
+  }
+
