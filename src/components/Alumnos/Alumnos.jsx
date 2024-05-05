@@ -15,38 +15,38 @@ const API_BASE_URL = 'http://localhost:5155/Colegio/api/Alumnos/';
 
 const Alumnos = () => {
   const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerAlumnosFiltro`);
-  const [createModalNewStudent, setCreateModalNewStudent] = useState(false);
-  const [createModalEditStudent, setCreateModalEditStudent] = useState(false);
-  const [createModalDeleteStudent, setCreateModalDeleteStudent] = useState(false);
+  const [createModalNuevoAlumno, setCreateModalNuevoAlumno] = useState(false);
+  const [createModalActualizarAlumno, setCreateModalActualizarAlumno] = useState(false);
+  const [createModalEliminarAlumno, setCreateModalEliminarAlumno] = useState(false);
   const [alumnoActual, setAlumnoActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const createNewStudent = usePostFetch(`${API_BASE_URL}AgregarAlumnos`);
-  const updateStudent = usePutFetch(`${API_BASE_URL}ActualizarAlumnos`);
-  const deleteStudent = useDeleteFetch(`${API_BASE_URL}EliminarAlumnos?idAlumno=`);
+  const nuevoAlumno = usePostFetch(`${API_BASE_URL}AgregarAlumnos`);
+  const actualizarAlumno = usePutFetch(`${API_BASE_URL}ActualizarAlumnos`);
+  const eliminarAlumno = useDeleteFetch(`${API_BASE_URL}EliminarAlumnos?idAlumno=`);
 
   const { data: carrera, isLoading: isLoadingCarrera} = useFetch(`${API_BASE_URL}../Carrera/ObtenerCarrera`);
 
-  const handleCreateShowEditStudent = (alumnoId) => {
+  const handleCreateShowActualizarAlumno = (alumnoId) => {
     const alumno = data.model.find((alumno) => alumno.idAlumno === alumnoId);
     setAlumnoActual(alumno);
-    setCreateModalEditStudent(true);
+    setCreateModalActualizarAlumno(true);
   };
 
-  const handleCreateShowNewStudent = () => setCreateModalNewStudent(true);
+  const handleCreateShowNuevoAlumno = () => setCreateModalNuevoAlumno(true);
 
-  const handleCreateShowDeleteStudent = (alumnoId) => {
+  const handleCreateShowEliminarAlumno = (alumnoId) => {
     const alumno = data.model.find((alumno) => alumno.idAlumno === alumnoId);
     console.log('Alumno actual:', alumno);
     setAlumnoActual(alumno);
-    setCreateModalDeleteStudent(true);
+    setCreateModalEliminarAlumno(true);
   };
 
   const handleCreateHide = () => {
-    setCreateModalEditStudent(false);
+    setCreateModalActualizarAlumno(false);
     setAlumnoActual(null);
-    setCreateModalNewStudent(false);
-    setCreateModalDeleteStudent(false);
+    setCreateModalNuevoAlumno(false);
+    setCreateModalEliminarAlumno(false);
   };
 
   const showSwal = (message) => {
@@ -63,7 +63,7 @@ const Alumnos = () => {
       });
   };
 
-  const handleSubmitNewStudent = (event) => {
+  const handleSubmitNuevoAlumno = (event) => {
     event.preventDefault();
     const payload = {
       nombre: event.target.createNombre.value,
@@ -73,12 +73,12 @@ const Alumnos = () => {
       telefono: event.target.createTelefono.value
     };
 
-    createNewStudent.executePost(payload);
+    nuevoAlumno.executePost(payload);
     handleCreateHide();
     showSwal('Alumno guardado exitosamente');
   };
 
-  const handleSubmitUpdateStudent = (event) => {
+  const handleSubmitActualizarAlumno = (event) => {
     event.preventDefault();
     const payload = {
       idAlumno: event.target.updateId.value,
@@ -89,16 +89,16 @@ const Alumnos = () => {
       telefono: event.target.updateTelefono.value
     };
 
-    updateStudent.executePut(payload);
+    actualizarAlumno.executePut(payload);
     handleCreateHide();
     showSwal('Alumno actualizado exitosamente');
   };
 
-  const handleDeleteStudent = (event) => {
+  const handleEliminarAlumno = (event) => {
     event.preventDefault();
     if (alumnoActual && alumnoActual.idAlumno) {
       console.log('ID del alumno a eliminar:', alumnoActual.idAlumno);
-      deleteStudent.executeDelete(alumnoActual.idAlumno);
+      eliminarAlumno.executeDelete(alumnoActual.idAlumno);
       showSwal('Alumno eliminado exitosamente');
       handleCreateHide();
     } else {
@@ -123,12 +123,12 @@ const Alumnos = () => {
           className="form-control form-control-sm me-4"
         />
 
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNewStudent}>
+        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoAlumno}>
           Agregar 
         </button>
-
       </div>
 
+      {/* -------------------Tabla para visualizar la lista de alumnos------------------------ */}
       <table className="table table-bordered table-hover">
         <thead>
           <tr>
@@ -143,7 +143,7 @@ const Alumnos = () => {
         </thead>
 
         <tbody>
-          {data &&
+          {data && data.model &&
             data.model
               .filter((alumno) => {
                 return (
@@ -166,7 +166,7 @@ const Alumnos = () => {
                     <button
                       type="button"
                       className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowEditStudent(alumno.idAlumno)}
+                      onClick={() => handleCreateShowActualizarAlumno(alumno.idAlumno)}
                     >
                       <FaEdit className="button-design" />
                     </button>
@@ -174,7 +174,7 @@ const Alumnos = () => {
                     <button
                       type="button"
                       className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowDeleteStudent(alumno.idAlumno)}
+                      onClick={() => handleCreateShowEliminarAlumno(alumno.idAlumno)}
                     >
                       <MdDeleteForever className="button-design" />
                     </button>
@@ -184,13 +184,14 @@ const Alumnos = () => {
         </tbody>
       </table>
 
-      <Modal show={createModalNewStudent} onHide={handleCreateHide}>
+      {/* --------------------------------Modal para agregar un nuevo alumno------------------------------------ */}
+      <Modal show={createModalNuevoAlumno} onHide={handleCreateHide}>
         <Modal.Header closeButton>
           <Modal.Title>Nuevo Alumno</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <form id='createStudent' onSubmit={handleSubmitNewStudent}>
+          <form id='createStudent' onSubmit={handleSubmitNuevoAlumno}>
             <div className="row mb-3">
               <div className="col-sm-12 col-md-6">
                 <label>Nombre</label>
@@ -229,14 +230,14 @@ const Alumnos = () => {
         </Modal.Body>
       </Modal>
 
-      {/* ---------------------------- Modal para editar un alumno ---------------------------------- */}
-      <Modal show={createModalEditStudent} onHide={handleCreateHide}>
+      {/* ---------------------------- Modal para editar a un alumno ---------------------------------- */}
+      <Modal show={createModalActualizarAlumno} onHide={handleCreateHide}>
         <Modal.Header closeButton>
           <Modal.Title>Editar Alumno</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <form id='updateStudent' onSubmit={handleSubmitUpdateStudent}>
+          <form id='actualizarAlumno' onSubmit={handleSubmitActualizarAlumno}>
             {alumnoActual && (
               <div className="row mb-3">
                 <div className="col-sm-12 col-md-6">
@@ -281,9 +282,8 @@ const Alumnos = () => {
         </Modal.Body>
       </Modal>
 
-
       {/* ---------------------------- Modal para eliminar a un alumno -------------------------- */}
-      <Modal show={createModalDeleteStudent} onHide={handleCreateHide}>
+      <Modal show={createModalEliminarAlumno} onHide={handleCreateHide}>
         <Modal.Header closeButton>
           <Modal.Title>Eliminar alumno</Modal.Title>
         </Modal.Header>
@@ -298,7 +298,7 @@ const Alumnos = () => {
             <button type="button" className="btn btn-danger mx-2" onClick={handleCreateHide}>
               Cancelar
             </button>
-            <button id='DeleteId' type="submit" className="btn btn-primary" onClick={handleDeleteStudent}>
+            <button id='DeleteId' type="submit" className="btn btn-primary" onClick={handleEliminarAlumno}>
               Aceptar
             </button>
           </div>
