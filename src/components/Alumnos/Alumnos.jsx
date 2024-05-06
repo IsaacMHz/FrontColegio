@@ -11,7 +11,7 @@ import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
 
-const API_BASE_URL = 'http://localhost:5155/Colegio/api/Alumnos/';
+const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/Alumnos/';
 
 const Alumnos = () => {
   const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerAlumnosFiltro`);
