@@ -1,6 +1,11 @@
+.main-nav{
+  flex-wrap: wrap;
+}
+
 .nav-item{
     flex: 0 0 100%;
     list-style: none;
+    flex-wrap: wrap;
 }
 
 .link{
@@ -24,3 +29,12 @@
     background-color: #f1d471;
   }
 
+  .lista{
+    flex: 0 0 100%;
+  }
+
+  .boton-salir{
+    flex: 0 0 60%;
+    margin-left: 30px;
+    margin-top: 40px;
+  }

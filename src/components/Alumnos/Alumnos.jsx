@@ -10,22 +10,25 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/Alumnos/';
+const API_BASE_URL = 'http://localhost:5155/Colegio/api/Alumnos/';
 
 const Alumnos = () => {
-  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerAlumnosFiltro`);
+  const { storedValue: token } = useLocalStorage('token');
+  const { storedValue:idRol } = useLocalStorage('idRol');
+  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerAlumnosFiltro`, token);
   const [createModalNuevoAlumno, setCreateModalNuevoAlumno] = useState(false);
   const [createModalActualizarAlumno, setCreateModalActualizarAlumno] = useState(false);
   const [createModalEliminarAlumno, setCreateModalEliminarAlumno] = useState(false);
   const [alumnoActual, setAlumnoActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const nuevoAlumno = usePostFetch(`${API_BASE_URL}AgregarAlumnos`);
-  const actualizarAlumno = usePutFetch(`${API_BASE_URL}ActualizarAlumnos`);
-  const eliminarAlumno = useDeleteFetch(`${API_BASE_URL}EliminarAlumnos?idAlumno=`);
+  const nuevoAlumno = usePostFetch(`${API_BASE_URL}AgregarAlumnos`, token);
+  const actualizarAlumno = usePutFetch(`${API_BASE_URL}ActualizarAlumnos`, token);
+  const eliminarAlumno = useDeleteFetch(`${API_BASE_URL}EliminarAlumnos?idAlumno=`, token);
 
-  const { data: carrera, isLoading: isLoadingCarrera} = useFetch(`${API_BASE_URL}../Carrera/ObtenerCarrera`);
+  const { data: carrera, isLoading: isLoadingCarrera} = useFetch(`${API_BASE_URL}../Carrera/ObtenerCarrera`, token);
 
   const handleCreateShowActualizarAlumno = (alumnoId) => {
     const alumno = data.model.find((alumno) => alumno.idAlumno === alumnoId);
@@ -123,9 +126,13 @@ const Alumnos = () => {
           className="form-control form-control-sm me-4"
         />
 
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoAlumno}>
-          Agregar 
-        </button>
+        {(idRol === '1') && (
+          <>
+            <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoAlumno}>
+              Agregar 
+            </button>
+          </>
+        )}
       </div>
 
       {/* -------------------Tabla para visualizar la lista de alumnos------------------------ */}
@@ -138,7 +145,13 @@ const Alumnos = () => {
             <th>Fecha de Nacimiento</th>
             <th>Carrera</th>
             <th>Telefono</th>
-            <th></th>
+            
+            {(idRol === '1') && (
+              <>
+                <th></th>
+              </>
+            )}
+
           </tr>
         </thead>
 
@@ -162,23 +175,30 @@ const Alumnos = () => {
                   <td>{FechaCorrecta(alumno.f_Nacimiento)}</td>
                   <td>{alumno.carrera.nombre}</td>
                   <td>{alumno.telefono}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowActualizarAlumno(alumno.idAlumno)}
-                    >
-                      <FaEdit className="button-design" />
-                    </button>
+                  
+                  {(idRol === '1') && (
+                    <>
+                            
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-dark"
+                          onClick={() => handleCreateShowActualizarAlumno(alumno.idAlumno)}
+                        >
+                          <FaEdit className="button-design" />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowEliminarAlumno(alumno.idAlumno)}
-                    >
-                      <MdDeleteForever className="button-design" />
-                    </button>
-                  </td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleCreateShowEliminarAlumno(alumno.idAlumno)}
+                        >
+                          <MdDeleteForever className="button-design" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+
                 </tr>
               ))}
         </tbody>

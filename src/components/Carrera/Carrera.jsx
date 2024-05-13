@@ -8,21 +8,23 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/Carrera/';
+const API_BASE_URL = 'http://localhost:5155/Colegio/api/Carrera/';
 
 const Carrera = () => {
-  
-  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerCarrera`);
+  const { storedValue: token } = useLocalStorage('token');
+  const { storedValue:idRol } = useLocalStorage('idRol');
+  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerCarrera`, token);
   const [createModalNuevaCarrera, setCreateModalNuevaCarrera] = useState(false);
   const [createModalActualizarCarrera, setCreateModalActualizarCarrera] = useState(false);
   const [createModalEliminarCarrera, setCreateModalEliminarCarrera] = useState(false);
   const [carreraActual, setCarreraActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const nuevoCarrera = usePostFetch(`${API_BASE_URL}AgregarCarrera`);
-  const actualizarCarrera = usePutFetch(`${API_BASE_URL}ActualizarCarrera`);
-  const eliminarCarrera = useDeleteFetch(`${API_BASE_URL}EliminarCarrera?idCarrera=`);
+  const nuevoCarrera = usePostFetch(`${API_BASE_URL}AgregarCarrera`, token);
+  const actualizarCarrera = usePutFetch(`${API_BASE_URL}ActualizarCarrera`, token);
+  const eliminarCarrera = useDeleteFetch(`${API_BASE_URL}EliminarCarrera?idCarrera=`, token);
 
   const handleCreateShowActualizarCarrera = (carreraId) => {
     const carrera = data.model.find((carrera) => carrera.idCarrera === carreraId);
@@ -113,9 +115,13 @@ const Carrera = () => {
           className="form-control form-control-sm me-4"
         />
 
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoCarrera}>
-          Agregar 
-        </button>
+        {(idRol === '1') && (
+          <>
+            <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoCarrera}>
+              Agregar 
+            </button>
+          </>
+        )}
       </div>
 
       <table className="table table-bordered table-hover">
@@ -123,7 +129,13 @@ const Carrera = () => {
         <tr>
           <th>Id</th>
           <th>Nombre</th>
-          <th></th>
+
+          {(idRol === '1') && (
+              <>
+                <th></th>
+              </>
+          )}
+          
         </tr>   
       </thead>
 
@@ -139,23 +151,29 @@ const Carrera = () => {
                 <tr key={carrera.idCarrera}>
                   <td>{carrera.idCarrera}</td>
                   <td>{carrera.nombre}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowActualizarCarrera(carrera.idCarrera)}
-                    >
-                      <FaEdit className="button-design" />
-                    </button>
+                  
+                  {(idRol === '1') && (
+                    <>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-dark"
+                          onClick={() => handleCreateShowActualizarCarrera(carrera.idCarrera)}
+                        >
+                          <FaEdit className="button-design" />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowEliminarCarrera(carrera.idCarrera)}
-                    >
-                      <MdDeleteForever className="button-design" />
-                    </button>
-                  </td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleCreateShowEliminarCarrera(carrera.idCarrera)}
+                        >
+                          <MdDeleteForever className="button-design" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                  
                 </tr>
               ))}
         </tbody>

@@ -8,24 +8,26 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/ParcialCuatro/';
+const API_BASE_URL = 'http://localhost:5155/Colegio/api/ParcialCuatro/';
 
 const ParcialCuatro = () => {
-
-  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerParcialCuatroExtend`);
+  const { storedValue: token } = useLocalStorage('token');
+  const { storedValue: idRol } = useLocalStorage('idRol');
+  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerParcialCuatroExtend`, token);
   const [createModalNuevoParcialCuatro, setCreateModalNuevoParcialCuatro] = useState(false);
   const [createModalActualizarParcialCuatro, setCreateModalActualizarParcialCuatro] = useState(false);
   const [createModalEliminarParcialCuatro, setCreateModalEliminarParcialCuatro] = useState(false);
   const [parcialCuatroActual, setParcialCuatroActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const nuevoParcialCuatro = usePostFetch(`${API_BASE_URL}InsertarParcialCuatro`);
-  const actualizarParcialCuatro = usePutFetch(`${API_BASE_URL}ActualizarParcialCuatro`);
-  const eliminarParcialCuatro = useDeleteFetch(`${API_BASE_URL}EliminarParcialCuatro?idParcial=`);
+  const nuevoParcialCuatro = usePostFetch(`${API_BASE_URL}InsertarParcialCuatro`, token);
+  const actualizarParcialCuatro = usePutFetch(`${API_BASE_URL}ActualizarParcialCuatro`, token);
+  const eliminarParcialCuatro = useDeleteFetch(`${API_BASE_URL}EliminarParcialCuatro?idParcial=`, token);
 
-  const { data: alumno, isLoading: isLoadingAlumno} = useFetch(`${API_BASE_URL}../Alumnos/ObtenerAlumnosFiltro`);
-  const { data: materia, isLoading: isLoadingMateria} = useFetch(`${API_BASE_URL}../Materias/ObtenerMaterias`);
+  const { data: alumno, isLoading: isLoadingAlumno} = useFetch(`${API_BASE_URL}../Alumnos/ObtenerAlumnosFiltro`, token);
+  const { data: materia, isLoading: isLoadingMateria} = useFetch(`${API_BASE_URL}../Materias/ObtenerMaterias`, token);
 
   const handleCreateShowActualizarParcialCuatro = (parcialCuatroId) => {
     const parcialCuatro = data.model.find((parcialCuatro) => parcialCuatro.idParcial === parcialCuatroId);
@@ -119,9 +121,14 @@ const ParcialCuatro = () => {
           className="form-control form-control-sm me-4"
         />
 
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoParcialCuatro}>
-          Agregar 
-        </button>
+        {(idRol === '1') && (
+          <>
+            <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoParcialCuatro}>
+              Agregar 
+            </button> 
+          </>
+        )}
+
       </div>
 
       {/* -------------------Tabla para visualizar la lista de parcialCuatro------------------------ */}
@@ -132,7 +139,13 @@ const ParcialCuatro = () => {
             <th>Alumno</th>
             <th>Materia</th>
             <th>Calificacion</th>
-            <th></th>
+
+            {(idRol === '1') && (
+              <>      
+                <th></th>
+              </>
+            )}
+
           </tr>
         </thead>
 
@@ -152,23 +165,29 @@ const ParcialCuatro = () => {
                   <td>{parcialCuatro.alumno.nombre} {parcialCuatro.alumno.apellido}</td>
                   <td>{parcialCuatro.materia.nombre}</td>
                   <td>{parcialCuatro.calificacion}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowActualizarParcialCuatro(parcialCuatro.idParcial)}
-                    >
-                      <FaEdit className="button-design" />
-                    </button>
+                  
+                  {(idRol === '1') && (
+                    <>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-dark"
+                          onClick={() => handleCreateShowActualizarParcialCuatro(parcialCuatro.idParcial)}
+                        >
+                          <FaEdit className="button-design" />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowEliminarParcialCuatro(parcialCuatro.idParcial)}
-                    >
-                      <MdDeleteForever className="button-design" />
-                    </button>
-                  </td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleCreateShowEliminarParcialCuatro(parcialCuatro.idParcial)}
+                        >
+                          <MdDeleteForever className="button-design" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+
                 </tr>
               ))}
         </tbody>

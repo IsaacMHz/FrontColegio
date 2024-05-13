@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function useDeleteFetch(url) {
+export function useDeleteFetch(url, token) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -13,7 +13,8 @@ export function useDeleteFetch(url) {
     const options = {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       }
     };
 
@@ -25,7 +26,7 @@ export function useDeleteFetch(url) {
         return response.json();
       })
       .then((resData) => setData(resData))
-      .catch((error) => setError(error))
+      .catch((error) => setError(error.message))
       .finally(() => setIsLoading(false));
   };
 

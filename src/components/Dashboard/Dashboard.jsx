@@ -16,7 +16,6 @@ export const Dashboard = (props) => {
 
     <div className='contenedor'>
 
-
       <div className={`sidebar ${sidebarVisible ? 'visible' : 'hidden'}`}>
         <h2 className='title'>Menú</h2>
         <hr className='border'/>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { MdDeleteForever } from 'react-icons/md';
 import { FaEdit } from 'react-icons/fa';
@@ -8,21 +8,24 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/Docentes/';
+const API_BASE_URL = 'http://localhost:5155/Colegio/api/Docentes/';
 
 const Docentes = () => {
   
-  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerDocentes`);
+  const { storedValue: token } = useLocalStorage('token');
+  const { storedValue: idRol } = useLocalStorage('idRol');
+  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerDocentes`, token);
   const [createModalNuevoDocente, setCreateModalNuevoDocente] = useState(false);
   const [createModalActualizarDocente, setCreateModalActualizarDocente] = useState(false);
   const [createModalEliminarDocente, setCreateModalEliminarDocente] = useState(false);
   const [docenteActual, setDocenteActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const nuevoDocente = usePostFetch(`${API_BASE_URL}InsertarDocentes`);
-  const actualizarDocente = usePutFetch(`${API_BASE_URL}ActualizarDocentes`);
-  const eliminarDocente = useDeleteFetch(`${API_BASE_URL}EliminarDocentes?idDocentes=`);
+  const nuevoDocente = usePostFetch(`${API_BASE_URL}InsertarDocentes`, token);
+  const actualizarDocente = usePutFetch(`${API_BASE_URL}ActualizarDocentes`, token);
+  const eliminarDocente = useDeleteFetch(`${API_BASE_URL}EliminarDocentes?idDocentes=`, token);
 
   const handleCreateShowActualizarDocente = (docenteId) => {
     const docente = data.model.find((docente) => docente.idDocentes === docenteId);
@@ -113,10 +116,13 @@ const Docentes = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="form-control form-control-sm me-4"
         />
-
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoDocente}>
-          Agregar 
-        </button>
+        {(idRol === '1') && (
+            <>
+              <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoDocente}>
+                Agregar 
+              </button>  
+            </>
+        )}
       </div>
 
       {/* -------------------Tabla para visualizar la lista de docentes------------------------ */}
@@ -126,7 +132,11 @@ const Docentes = () => {
             <th>Id</th>
             <th>Nombre</th>
             <th>Apellido</th>
-            <th></th>
+            {(idRol === '1') && (
+              <>
+                <th></th>      
+              </>
+            )}
           </tr>
         </thead>
 
@@ -144,23 +154,29 @@ const Docentes = () => {
                   <td>{docente.idDocentes}</td>
                   <td>{docente.nombre}</td>
                   <td>{docente.apellido}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowActualizarDocente(docente.idDocentes)}
-                    >
-                      <FaEdit className="button-design" />
-                    </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowEliminarDocente(docente.idDocentes)}
-                    >
-                      <MdDeleteForever className="button-design" />
-                    </button>
-                  </td>
+                  {(idRol === '1') && (
+                    <>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-dark"
+                          onClick={() => handleCreateShowActualizarDocente(docente.idDocentes)}
+                        >
+                          <FaEdit className="button-design" />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleCreateShowEliminarDocente(docente.idDocentes)}
+                        >
+                          <MdDeleteForever className="button-design" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+
                 </tr>
               ))}
         </tbody>

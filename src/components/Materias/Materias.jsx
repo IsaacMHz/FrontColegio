@@ -8,23 +8,25 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/Materias/';
+const API_BASE_URL = 'http://localhost:5155/Colegio/api/Materias/';
 
 const Materias = () => {
-
-  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerMateriasDocentes`);
+  const { storedValue: token } = useLocalStorage('token');
+  const { storedValue: idRol } = useLocalStorage('idRol');
+  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerMateriasDocentes`, token);
   const [createModalNuevaMateria, setCreateModalNuevaMateria] = useState(false);
   const [createModalActualizarMateria, setCreateModalActualizarMateria] = useState(false);
   const [createModalEliminarMateria, setCreateModalEliminarMateria] = useState(false);
   const [materiaActual, setMateriaActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const nuevoMateria = usePostFetch(`${API_BASE_URL}AgregarMaterias`);
-  const actualizarMateria = usePutFetch(`${API_BASE_URL}ActualizarMateria`);
-  const eliminarMateria = useDeleteFetch(`${API_BASE_URL}EliminarMateria?idMateria=`);
+  const nuevoMateria = usePostFetch(`${API_BASE_URL}AgregarMaterias`, token);
+  const actualizarMateria = usePutFetch(`${API_BASE_URL}ActualizarMateria`, token);
+  const eliminarMateria = useDeleteFetch(`${API_BASE_URL}EliminarMateria?idMateria=`, token);
 
-  const { data: docente, isLoading: isLoadingDocente} = useFetch(`${API_BASE_URL}../Docentes/ObtenerDocentes`);
+  const { data: docente, isLoading: isLoadingDocente} = useFetch(`${API_BASE_URL}../Docentes/ObtenerDocentes`, token);
 
   const handleCreateShowActualizarMateria = (materiaId) => {
     const materia = data.model.find((materia) => materia.idMateria === materiaId);
@@ -116,9 +118,14 @@ const Materias = () => {
           className="form-control form-control-sm me-4"
         />
 
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevaMateria}>
-          Agregar 
-        </button>
+        {(idRol === '1') && (
+          <>          
+            <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevaMateria}>
+              Agregar 
+            </button>
+          </>
+        )}
+
       </div>
 
       {/* -------------------Tabla para visualizar la lista de materias------------------------ */}
@@ -128,7 +135,13 @@ const Materias = () => {
             <th>Id</th>
             <th>Materia</th>
             <th>Docente</th>
-            <th></th>
+
+            {(idRol === '1') && (
+              <>      
+                <th></th>
+              </>
+            )}
+
           </tr>
         </thead>
 
@@ -147,23 +160,29 @@ const Materias = () => {
                   <td>{materia.idMateria}</td>
                   <td>{materia.nombre}</td>
                   <td>{materia.docente.nombre} {materia.docente.apellido}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowActualizarMateria(materia.idMateria)}
-                    >
-                      <FaEdit className="button-design" />
-                    </button>
+                  
+                  {(idRol === '1') && (
+                    <>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-dark"
+                          onClick={() => handleCreateShowActualizarMateria(materia.idMateria)}
+                        >
+                          <FaEdit className="button-design" />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowEliminarMateria(materia.idMateria)}
-                    >
-                      <MdDeleteForever className="button-design" />
-                    </button>
-                  </td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleCreateShowEliminarMateria(materia.idMateria)}
+                        >
+                          <MdDeleteForever className="button-design" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+
                 </tr>
               ))}
         </tbody>

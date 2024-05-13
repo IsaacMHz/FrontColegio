@@ -8,24 +8,26 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/ParcialUno/';
+const API_BASE_URL = 'http://localhost:5155/Colegio/api/ParcialUno/';
 
 const ParcialUno = () => {
-
-  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerParcialUnoExtend`);
+  const { storedValue: token } = useLocalStorage('token');
+  const { storedValue: idRol } = useLocalStorage('idRol');
+  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerParcialUnoExtend`, token);
   const [createModalNuevoParcialUno, setCreateModalNuevoParcialUno] = useState(false);
   const [createModalActualizarParcialUno, setCreateModalActualizarParcialUno] = useState(false);
   const [createModalEliminarParcialUno, setCreateModalEliminarParcialUno] = useState(false);
   const [parcialUnoActual, setParcialUnoActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const nuevoParcialUno = usePostFetch(`${API_BASE_URL}InsertarParcialUno`);
-  const actualizarParcialUno = usePutFetch(`${API_BASE_URL}ActualizarParcialUno`);
-  const eliminarParcialUno = useDeleteFetch(`${API_BASE_URL}EliminarParcialUno?idParcial=`);
+  const nuevoParcialUno = usePostFetch(`${API_BASE_URL}InsertarParcialUno`, token);
+  const actualizarParcialUno = usePutFetch(`${API_BASE_URL}ActualizarParcialUno`, token);
+  const eliminarParcialUno = useDeleteFetch(`${API_BASE_URL}EliminarParcialUno?idParcial=`, token);
 
-  const { data: alumno, isLoading: isLoadingAlumno} = useFetch(`${API_BASE_URL}../Alumnos/ObtenerAlumnosFiltro`);
-  const { data: materia, isLoading: isLoadingMateria} = useFetch(`${API_BASE_URL}../Materias/ObtenerMaterias`);
+  const { data: alumno, isLoading: isLoadingAlumno} = useFetch(`${API_BASE_URL}../Alumnos/ObtenerAlumnosFiltro`, token);
+  const { data: materia, isLoading: isLoadingMateria} = useFetch(`${API_BASE_URL}../Materias/ObtenerMaterias`, token);
 
   const handleCreateShowActualizarParcialUno = (parcialUnoId) => {
     const parcialUno = data.model.find((parcialUno) => parcialUno.idParcial === parcialUnoId);
@@ -119,9 +121,14 @@ const ParcialUno = () => {
           className="form-control form-control-sm me-4"
         />
 
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoParcialUno}>
-          Agregar 
-        </button>
+        {(idRol === '1') && (
+          <>
+            <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoParcialUno}>
+              Agregar 
+            </button>            
+          </>
+        )}
+
       </div>
 
       {/* -------------------Tabla para visualizar la lista de parcialUno------------------------ */}
@@ -132,7 +139,13 @@ const ParcialUno = () => {
             <th>Alumno</th>
             <th>Materia</th>
             <th>Calificacion</th>
-            <th></th>
+
+            {(idRol === '1') && (
+              <>      
+                <th></th>
+              </>
+            )}
+
           </tr>
         </thead>
 
@@ -152,23 +165,29 @@ const ParcialUno = () => {
                   <td>{parcialUno.alumno.nombre} {parcialUno.alumno.apellido}</td>
                   <td>{parcialUno.materia.nombre}</td>
                   <td>{parcialUno.calificacion}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowActualizarParcialUno(parcialUno.idParcial)}
-                    >
-                      <FaEdit className="button-design" />
-                    </button>
+                  
+                  {(idRol === '1') && (
+                    <>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-dark"
+                          onClick={() => handleCreateShowActualizarParcialUno(parcialUno.idParcial)}
+                        >
+                          <FaEdit className="button-design" />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowEliminarParcialUno(parcialUno.idParcial)}
-                    >
-                      <MdDeleteForever className="button-design" />
-                    </button>
-                  </td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleCreateShowEliminarParcialUno(parcialUno.idParcial)}
+                        >
+                          <MdDeleteForever className="button-design" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+
                 </tr>
               ))}
         </tbody>

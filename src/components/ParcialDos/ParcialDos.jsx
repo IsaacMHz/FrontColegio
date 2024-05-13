@@ -8,24 +8,26 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { usePutFetch } from '../../hooks/usePutFetch';
 import { useDeleteFetch } from '../../hooks/useDeleteFetch';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const API_BASE_URL = 'https://apitraineecolegio1.azurewebsites.net/Colegio/api/ParcialDos/';
+const API_BASE_URL = 'http://localhost:5155/Colegio/api/ParcialDos/';
 
 const ParcialDos = () => {
-
-  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerParcialDosExtend`);
+  const { storedValue: token } = useLocalStorage('token');
+  const { storedValue: idRol } = useLocalStorage('idRol');
+  const { data, isLoading, error } = useFetch(`${API_BASE_URL}ObtenerParcialDosExtend`, token);
   const [createModalNuevoParcialDos, setCreateModalNuevoParcialDos] = useState(false);
   const [createModalActualizarParcialDos, setCreateModalActualizarParcialDos] = useState(false);
   const [createModalEliminarParcialDos, setCreateModalEliminarParcialDos] = useState(false);
   const [parcialDosActual, setParcialDosActual] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const nuevoParcialDos = usePostFetch(`${API_BASE_URL}InsertarParcialDos`);
-  const actualizarParcialDos = usePutFetch(`${API_BASE_URL}ActualizarParcialDos`);
-  const eliminarParcialDos = useDeleteFetch(`${API_BASE_URL}EliminarParcialDos?idParcial=`);
+  const nuevoParcialDos = usePostFetch(`${API_BASE_URL}InsertarParcialDos`, token);
+  const actualizarParcialDos = usePutFetch(`${API_BASE_URL}ActualizarParcialDos`, token);
+  const eliminarParcialDos = useDeleteFetch(`${API_BASE_URL}EliminarParcialDos?idParcial=`, token);
 
-  const { data: alumno, isLoading: isLoadingAlumno} = useFetch(`${API_BASE_URL}../Alumnos/ObtenerAlumnosFiltro`);
-  const { data: materia, isLoading: isLoadingMateria} = useFetch(`${API_BASE_URL}../Materias/ObtenerMaterias`);
+  const { data: alumno, isLoading: isLoadingAlumno} = useFetch(`${API_BASE_URL}../Alumnos/ObtenerAlumnosFiltro`, token);
+  const { data: materia, isLoading: isLoadingMateria} = useFetch(`${API_BASE_URL}../Materias/ObtenerMaterias`, token);
 
   const handleCreateShowActualizarParcialDos = (parcialDosId) => {
     const parcialDos = data.model.find((parcialDos) => parcialDos.idParcial === parcialDosId);
@@ -119,9 +121,14 @@ const ParcialDos = () => {
           className="form-control form-control-sm me-4"
         />
 
-        <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoParcialDos}>
-          Agregar 
-        </button>
+        {(idRol === '1') && (
+          <>                  
+            <button className="btn btn-primary btn-block" onClick={handleCreateShowNuevoParcialDos}>
+              Agregar 
+            </button>
+          </>
+        )}
+
       </div>
 
       {/* -------------------Tabla para visualizar la lista de parcialDos------------------------ */}
@@ -132,7 +139,13 @@ const ParcialDos = () => {
             <th>Alumno</th>
             <th>Materia</th>
             <th>Calificacion</th>
-            <th></th>
+
+            {(idRol === '1') && (
+              <>
+                <th></th>
+              </>
+            )}
+
           </tr>
         </thead>
 
@@ -152,23 +165,29 @@ const ParcialDos = () => {
                   <td>{parcialDos.alumno.nombre} {parcialDos.alumno.apellido}</td>
                   <td>{parcialDos.materia.nombre}</td>
                   <td>{parcialDos.calificacion}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-dark"
-                      onClick={() => handleCreateShowActualizarParcialDos(parcialDos.idParcial)}
-                    >
-                      <FaEdit className="button-design" />
-                    </button>
+                  
+                  {(idRol === '1') && (
+                    <>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-dark"
+                          onClick={() => handleCreateShowActualizarParcialDos(parcialDos.idParcial)}
+                        >
+                          <FaEdit className="button-design" />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleCreateShowEliminarParcialDos(parcialDos.idParcial)}
-                    >
-                      <MdDeleteForever className="button-design" />
-                    </button>
-                  </td>
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => handleCreateShowEliminarParcialDos(parcialDos.idParcial)}
+                        >
+                          <MdDeleteForever className="button-design" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+
                 </tr>
               ))}
         </tbody>
