@@ -36,7 +36,7 @@ const Login = () => {
         if (data && data.model) {
             setToken(data.model);
         }
-    }, [data, setToken, navigate]);
+    }, [data, setToken]);
  
     return (
         <div className="contenedor-login">

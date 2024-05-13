@@ -66,6 +66,17 @@ const Menu = () => {
                             </NavLink>
                         </>
                     )}
+
+                    {(idRol === '1') && (
+                        <>
+                            <NavLink 
+                                className={({isActive})=>(`link ${isActive ? 'active': ''}`)} 
+                                to='/usuarios'>
+                                Usuarios
+                            </NavLink>
+                        </>
+                    )}    
+
                 </li>
             </ul>
             <button  type="button" className="boton-salir btn btn-danger" onClick={cerrarSesion}>

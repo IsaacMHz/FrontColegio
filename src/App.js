@@ -10,6 +10,7 @@ import ParcialTres from "./components/ParcialTres/ParcialTres"
 import ParcialCuatro from "./components/ParcialCuatro/ParcialCuatro";
 import Login from "./components/Login/Login";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+import Usuarios from "./components/Usuarios/Usuarios";
 
 function App() {
   return (
@@ -47,6 +48,10 @@ function App() {
 
           <Route element={<PrivateRoute redirectPath="/"/>}>
             <Route path="/parcialCuatro" element={<Dashboard><ParcialCuatro /></Dashboard>}/>
+          </Route>
+
+          <Route element={<PrivateRoute redirectPath="/"/>}>
+            <Route path="/usuarios" element={<Dashboard><Usuarios /></Dashboard>}/>
           </Route>
 
         </Routes>    
